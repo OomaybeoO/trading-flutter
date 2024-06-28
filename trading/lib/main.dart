@@ -30,46 +30,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0; // Counter variable added here
-
-  List<Transaction> transactions = [];
-
-  TextEditingController _priceController = TextEditingController();
-  TextEditingController _unitController = TextEditingController();
-
   int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // Initial dummy data (optional)
-    transactions = [
-      Transaction('2024-06-25', 100, 'USD'),
-      Transaction('2024-06-24', 50, 'EUR'),
-      Transaction('2024-06-23', 80, 'JPY'),
-    ];
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      String price = _priceController.text;
-      String unit = _unitController.text;
-
-      // Validate input (optional)
-      if (price.isEmpty || unit.isEmpty) {
-        return;
-      }
-
-      // Simulate a new transaction with date, price, and unit
-      transactions.insert(
-          0, Transaction(DateTime.now().toString(), int.parse(price), unit));
-      _counter++;
-
-      // Clear input fields
-      _priceController.clear();
-      _unitController.clear();
-    });
-  }
+  static List<Transaction> transactions = [
+    Transaction('2024-06-25', 100, 'USD'),
+    Transaction('2024-06-24', 50, 'EUR'),
+    Transaction('2024-06-23', 80, 'JPY'),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -83,77 +50,175 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: _selectedIndex == 0 ? _buildTransactionList() : WebViewPage(),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildHomePage(),
+          _buildStrategyPage(),
+          _buildInformationPage(),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Transactions',
+            icon: Icon(Icons.home),
+            label: '主頁',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Settings',
+            label: '策略',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: '資訊',
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildTransactionList() {
+  Widget _buildHomePage() {
     return Column(
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: _priceController,
-                  decoration: InputDecoration(labelText: 'Price'),
-                  keyboardType: TextInputType.number,
-                ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('收益曲線圖'),
+              SizedBox(height: 16.0),
+              Container(
+                height: 200.0,
+                color: Colors.grey[300],
+                child: Center(child: Text('圖表區域')),
               ),
-              SizedBox(width: 16.0),
-              Expanded(
-                child: TextField(
-                  controller: _unitController,
-                  decoration: InputDecoration(labelText: 'Unit'),
-                ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('以實現收益'),
+                      Text('+\$5,000'),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('未實現收益'),
+                      Text('+\$3,000'),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('收益率'),
+                      Text('8%'),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('年化收益率'),
+                      Text('12%'),
+                    ],
+                  ),
+                ],
               ),
             ],
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: transactions.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Card(
-                child: ListTile(
-                  title: Text('Transaction Date: ${transactions[index].date}'),
-                  subtitle: Text(
-                      'Price: ${transactions[index].price} ${transactions[index].unit}'),
-                ),
-              );
-            },
           ),
         ),
       ],
     );
   }
 
-  @override
-  void dispose() {
-    // Clean up the controllers when the widget is disposed
-    _priceController.dispose();
-    _unitController.dispose();
-    super.dispose();
+  Widget _buildStrategyPage() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('基本策略設定'),
+          Slider(
+            value: 10,
+            min: 0,
+            max: 100,
+            divisions: 10,
+            label: '10%',
+            onChanged: (value) {},
+          ),
+          Slider(
+            value: 1,
+            min: 0,
+            max: 10,
+            divisions: 10,
+            label: '1',
+            onChanged: (value) {},
+          ),
+          SizedBox(height: 16.0),
+          Text('額外策略設定'),
+          Slider(
+            value: 30,
+            min: 0,
+            max: 100,
+            divisions: 10,
+            label: '30%',
+            onChanged: (value) {},
+          ),
+          Slider(
+            value: -50,
+            min: -100,
+            max: 0,
+            divisions: 10,
+            label: '-50%',
+            onChanged: (value) {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInformationPage() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('BTC/USDT 交易信息'),
+          _buildTransactionInfo('2024-04-29 18:54', '1200', '+10%', '10'),
+          SizedBox(height: 16.0),
+          Text('2330 交易信息'),
+          _buildTransactionInfo('2024-06-26 18:54', '12345', '+10%', '10'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTransactionInfo(
+      String date, String price, String change, String amount) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('交易時間: $date'),
+        Text('交易價格: $price'),
+        Text('漲跌幅: $change'),
+        Text('交易量: $amount'),
+        SizedBox(height: 8.0),
+        ElevatedButton(
+          onPressed: () {},
+          child: Text('詳情'),
+        ),
+      ],
+    );
   }
 }
 
@@ -163,16 +228,4 @@ class Transaction {
   final String unit;
 
   Transaction(this.date, this.price, this.unit);
-}
-
-class WebViewPage extends StatelessWidget {
-  final String url = 'http://127.0.0.1:8000/charts/kk/';
-
-  @override
-  Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: url,
-      javascriptMode: JavascriptMode.unrestricted,
-    );
-  }
 }
